@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Você, Ash ✨</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,600;0,800;1,400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #06040a;
+            --purple-glow: #a855f7;
+            --cyan-glow: #06b6d4;
+            --ash-purple: #c084fc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #ffffff;
+        }
+
+        /* TELA DE INTRO (GATINHO) */
+        #intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #120924 0%, #06040a 85%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        #intro-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .cat-container {
+            width: 190px;
+            height: 190px;
+            position: relative;
+            margin-bottom: 24px;
+            animation: floatCat 4s ease-in-out infinite alternate;
+        }
+
+        .cat-svg {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 25px rgba(168, 85, 247, 0.45));
+        }
+
+        .intro-text {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(1.2rem, 3.5vw, 2.1rem);
+            font-weight: 800;
+            text-align: center;
+            background: linear-gradient(135deg, #ffffff 30%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 25px rgba(192, 132, 252, 0.4);
+            padding: 0 20px;
+            letter-spacing: -0.01em;
+        }
+
+        .intro-subtext {
+            margin-top: 14px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 22px;
+            border-radius: 20px;
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            backdrop-filter: blur(10px);
+            animation: pulseGlow 2s infinite alternate;
+        }
+
+        /* CANVAS E JARDIM */
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            cursor: pointer;
+        }
+
+        .header-container {
+            position: absolute;
+            top: 5vh;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 820px;
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        .header-container.visible {
+            opacity: 1;
+        }
+
+        .main-title {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(1.1rem, 3.2vw, 2rem);
+            font-weight: 800;
+            line-height: 1.4;
+            background: linear-gradient(135deg, #ffffff 20%, #f1f5f9 50%, #c084fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(168, 85, 247, 0.25);
+            letter-spacing: -0.02em;
+        }
+
+        .sub-title {
+            font-size: clamp(1.2rem, 3vw, 1.7rem);
+            font-weight: 800;
+            color: var(--ash-purple);
+            text-shadow: 0 0 15px rgba(192, 132, 252, 0.8), 0 0 35px rgba(168, 85, 247, 0.5);
+            letter-spacing: 0.05em;
+            text-transform: lowercase;
+            animation: pulseGlow 3s ease-in-out infinite alternate;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            display: flex;
+            gap: 12px;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+
+        .controls.visible {
+            opacity: 1;
+        }
+
+        .btn {
+            background: rgba(15, 11, 25, 0.75);
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            color: #e2e8f0;
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background: rgba(168, 85, 247, 0.25);
+            border-color: rgba(168, 85, 247, 0.7);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        @keyframes floatCat {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-12px); }
+        }
+
+        @keyframes pulseGlow {
+            0% { text-shadow: 0 0 12px rgba(192, 132, 252, 0.5), 0 0 25px rgba(168, 85, 247, 0.3); }
+            100% { text-shadow: 0 0 22px rgba(192, 132, 252, 0.9), 0 0 45px rgba(6, 182, 212, 0.6); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TELA INICIAL (GATINHO) -->
+    <div id="intro-screen">
+        <div class="cat-container">
+            <svg class="cat-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Lua sutil ao fundo -->
+                <circle cx="100" cy="100" r="75" fill="url(#moonGrad)" opacity="0.18"/>
+                <!-- Corpo do Gatinho -->
+                <path d="M 60 125 C 50 85, 140 70, 150 115 C 155 140, 120 155, 90 150 C 70 147, 55 138, 60 125 Z" fill="#2d1945" stroke="#a855f7" stroke-width="2.5"/>
+                <!-- Cabeça -->
+                <circle cx="75" cy="115" r="28" fill="#3b1f5c" stroke="#a855f7" stroke-width="2"/>
+                <!-- Orelhas -->
+                <polygon points="55,95 65,72 80,92" fill="#2d1945" stroke="#c084fc" stroke-width="2"/>
+                <polygon points="75,92 90,72 98,96" fill="#2d1945" stroke="#c084fc" stroke-width="2"/>
+                <polygon points="60,93 67,78 77,91" fill="#c084fc" opacity="0.6"/>
+                <polygon points="78,91 88,78 94,94" fill="#c084fc" opacity="0.6"/>
+                <!-- Olhos Fechados (Dormindo) -->
+                <path d="M 62 116 Q 68 122 74 116" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                <path d="M 80 116 Q 86 122 92 116" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+                <!-- Focinho -->
+                <circle cx="77" cy="121" r="2" fill="#f43f5e"/>
+                <!-- Rabo Enrolado -->
+                <path d="M 145 125 C 165 110, 165 145, 135 148" stroke="#a855f7" stroke-width="4" stroke-linecap="round" fill="none"/>
+                <!-- Estrelas ao redor -->
+                <circle cx="130" cy="65" r="2" fill="#22d3ee"/>
+                <circle cx="45" cy="80" r="1.5" fill="#c084fc"/>
+                <circle cx="155" cy="95" r="2.5" fill="#fef08a"/>
+                <defs>
+                    <radialGradient id="moonGrad" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(100 100) rotate(90) scale(75)">
+                        <stop stop-color="#a855f7"/>
+                        <stop offset="1" stop-color="#06b6d4" stop-opacity="0"/>
+                    </radialGradient>
+                </defs>
+            </svg>
+        </div>
+        <div class="intro-text">clica ai que tenho algo especial para vc</div>
+        <div class="intro-subtext">✨ toque em qualquer lugar para abrir</div>
+    </div>
+
+    <!-- TELA PRINCIPAL / JARDIM -->
+    <div class="header-container" id="headerContainer">
+        <h1 class="main-title">vc não me contou tua flor favorita, mas te dedico todas as flores do mundo pra você</h1>
+        <h2 class="sub-title">especialmente pra vc ash ✨</h2>
+    </div>
+
+    <canvas id="canvas"></canvas>
+
+    <div class="controls" id="controls">
+        <button class="btn" id="soundBtn">🎵 Som: On</button>
+        <button class="btn" id="clearBtn">🧹 Limpar Tela</button>
+    </div>
+
+    <script>
+        const introScreen = document.getElementById('intro-screen');
+        const headerContainer = document.getElementById('headerContainer');
+        const controls = document.getElementById('controls');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const soundBtn = document.getElementById('soundBtn');
+        const clearBtn = document.getElementById('clearBtn');
+
+        let width, height;
+        let branches = [];
+        let flowers = [];
+        let particles = [];
+        let floatingPetals = [];
+        let audioEnabled = true;
+        let audioCtx = null;
+        let started = false;
+
+        // Paleta Vibrante Expandida
+        const colorPalettes = [
+            { main: '#a855f7', sec: '#06b6d4', inner: '#c084fc', center: '#fef08a' }, // Roxo e Ciano
+            { main: '#ec4899', sec: '#f43f5e', inner: '#fb7185', center: '#ffffff' }, // Magenta e Rosa
+            { main: '#06b6d4', sec: '#3b82f6', inner: '#67e8f9', center: '#fef08a' }, // Ciano e Azul
+            { main: '#eab308', sec: '#f97316', inner: '#fde047', center: '#ffffff' }, // Dourado e Laranja
+            { main: '#8b5cf6', sec: '#d946ef', inner: '#e879f9', center: '#fef08a' }, // Violeta e Orquídea
+            { main: '#10b981', sec: '#06b6d4', inner: '#34d399', center: '#ffffff' }, // Esmeralda e Ciano
+            { main: '#f43f5e', sec: '#a855f7', inner: '#fda4af', center: '#fef08a' }, // Rubim e Roxo
+            { main: '#0284c7', sec: '#a855f7', inner: '#38bdf8', center: '#ffffff' }  // Azul Safira e Violeta
+        ];
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Áudio Sintetizado Aveludado (Piano/Synth)
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playChord() {
+            if (!audioEnabled || !started) return;
+            initAudio();
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            const now = audioCtx.currentTime;
+            const chords = [
+                [261.63, 329.63, 392.00, 523.25], // C Maior
+                [293.66, 349.23, 440.00, 587.33], // D menor
+                [329.63, 392.00, 493.88, 659.25], // E menor
+                [349.23, 440.00, 523.25, 698.46], // F Maior
+                [392.00, 493.88, 587.33, 783.99]  // G Maior
+            ];
+
+            const selectedChord = chords[Math.floor(Math.random() * chords.length)];
+
+            selectedChord.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, now + i * 0.05);
+
+                gain.gain.setValueAtTime(0.02, now + i * 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.05 + 1.8);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now + i * 0.05);
+                osc.stop(now + i * 0.05 + 1.8);
+            });
+        }
+
+        soundBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            audioEnabled = !audioEnabled;
+            soundBtn.textContent = audioEnabled ? '🎵 Som: On' : '🔇 Som: Off';
+        });
+
+        clearBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            branches = [];
+            flowers = [];
+            particles = [];
+            floatingPetals = [];
+            ctx.clearRect(0, 0, width, height);
+        });
+
+        function startApp(e) {
+            if (started) return;
+            started = true;
+            initAudio();
+            
+            introScreen.classList.add('hidden');
+            headerContainer.classList.add('visible');
+            controls.classList.add('visible');
+
+            const clickX = e.clientX || (e.touches && e.touches[0].clientX) || width / 2;
+            const clickY = e.clientY || (e.touches && e.touches[0].clientY) || height / 2;
+            
+            setTimeout(() => {
+                createPlant(clickX, clickY);
+            }, 300);
+        }
+
+        introScreen.addEventListener('click', startApp);
+        introScreen.addEventListener('touchstart', startApp, { passive: true });
+
+        // Classe dos Ramos
+        class Branch {
+            constructor(x, y, angle, length, depth, palette) {
+                this.x = x;
+                this.y = y;
+                this.currX = x;
+                this.currY = y;
+                this.angle = angle;
+                this.length = length;
+                this.depth = depth;
+                this.palette = palette;
+                this.progress = 0;
+                this.speed = 0.04 + Math.random() * 0.03;
+                this.width = Math.max(1, depth * 2);
+                this.finished = false;
+                this.curviness = (Math.random() - 0.5) * 0.4;
+            }
+
+            update() {
+                if (this.finished) return;
+
+                this.progress += this.speed;
+                if (this.progress >= 1) {
+                    this.progress = 1;
+                    this.finished = true;
+                    this.onComplete();
+                }
+
+                this.angle += this.curviness * 0.1;
+                const dist = this.length * this.progress;
+                this.currX = this.x + Math.cos(this.angle) * dist;
+                this.currY = this.y + Math.sin(this.angle) * dist;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.currX, this.currY);
+                ctx.strokeStyle = '#181124';
+                ctx.lineWidth = this.width;
+                ctx.lineCap = 'round';
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(this.currX, this.currY);
+                ctx.strokeStyle = this.palette.main;
+                ctx.globalAlpha = 0.4;
+                ctx.lineWidth = this.width * 0.5;
+                ctx.stroke();
+                ctx.globalAlpha = 1.0;
+            }
+
+            onComplete() {
+                if (this.depth > 1 && Math.random() > 0.15) {
+                    const subBranches = Math.floor(1 + Math.random() * 2);
+                    for (let i = 0; i < subBranches; i++) {
+                        const newAngle = this.angle + (Math.random() - 0.5) * 1.2;
+                        const newLength = this.length * (0.6 + Math.random() * 0.3);
+                        branches.push(new Branch(this.currX, this.currY, newAngle, newLength, this.depth - 1, this.palette));
+                    }
+                }
+
+                if (this.depth <= 2 || Math.random() < 0.5) {
+                    flowers.push(new Flower(this.currX, this.currY, this.palette));
+                    spawnParticles(this.currX, this.currY, this.palette.sec);
+                }
+            }
+        }
+
+        // Classe das Flores
+        class Flower {
+            constructor(x, y, palette) {
+                this.x = x;
+                this.y = y;
+                this.palette = palette;
+                this.scale = 0;
+                this.targetScale = 0.8 + Math.random() * 0.6;
+                this.petals = Math.floor(5 + Math.random() * 4);
+                this.speed = 0.03 + Math.random() * 0.02;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.type = Math.floor(Math.random() * 3);
+            }
+
+            update() {
+                if (this.scale < this.targetScale) {
+                    this.scale += this.speed;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.scale(this.scale, this.scale);
+
+                const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, 42);
+                grad.addColorStop(0, this.palette.main);
+                grad.addColorStop(1, 'transparent');
+                ctx.fillStyle = grad;
+                ctx.globalAlpha = 0.35;
+                ctx.beginPath();
+                ctx.arc(0, 0, 42, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+
+                // Pétalas Externas
+                for (let i = 0; i < this.petals; i++) {
+                    const angle = (i * Math.PI * 2) / this.petals;
+                    ctx.save();
+                    ctx.rotate(angle);
+
+                    ctx.beginPath();
+                    if (this.type === 0) {
+                        ctx.moveTo(0, 0);
+                        ctx.quadraticCurveTo(18, -22, 0, -42);
+                        ctx.quadraticCurveTo(-18, -22, 0, 0);
+                    } else if (this.type === 1) {
+                        ctx.moveTo(0, 0);
+                        ctx.bezierCurveTo(20, -15, 15, -40, 0, -44);
+                        ctx.bezierCurveTo(-15, -40, -20, -15, 0, 0);
+                    } else {
+                        ctx.moveTo(0, 0);
+                        ctx.lineTo(15, -20);
+                        ctx.lineTo(0, -44);
+                        ctx.lineTo(-15, -20);
+                        ctx.closePath();
+                    }
+
+                    ctx.fillStyle = i % 2 === 0 ? this.palette.main : this.palette.sec;
+                    ctx.fill();
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+
+                    ctx.restore();
+                }
+
+                // Pétalas Internas
+                for (let i = 0; i < this.petals; i++) {
+                    const angle = (i * Math.PI * 2) / this.petals + (Math.PI / this.petals);
+                    ctx.save();
+                    ctx.rotate(angle);
+
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.quadraticCurveTo(12, -14, 0, -26);
+                    ctx.quadraticCurveTo(-12, -14, 0, 0);
+
+                    ctx.fillStyle = this.palette.inner;
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // Miolo Iluminado
+                ctx.beginPath();
+                ctx.arc(0, 0, 8, 0, Math.PI * 2);
+                ctx.fillStyle = this.palette.center;
+                ctx.shadowColor = this.palette.center;
+                ctx.shadowBlur = 12;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                ctx.restore();
+            }
+        }
+
+        function spawnParticles(x, y, color) {
+            for (let i = 0; i < 8; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 3,
+                    vy: (Math.random() - 0.5) * 3,
+                    alpha: 1,
+                    size: 2 + Math.random() * 3,
+                    color: color
+                });
+            }
+
+            if (Math.random() < 0.6) {
+                floatingPetals.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 1,
+                    vy: 0.5 + Math.random() * 1,
+                    rotation: Math.random() * Math.PI,
+                    vRot: (Math.random() - 0.5) * 0.05,
+                    alpha: 0.9,
+                    size: 5 + Math.random() * 5,
+                    color: color
+                });
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 0.02;
+
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            for (let i = floatingPetals.length - 1; i >= 0; i--) {
+                const pt = floatingPetals[i];
+                pt.x += pt.vx + Math.sin(pt.y * 0.02) * 0.5;
+                pt.y += pt.vy;
+                pt.rotation += pt.vRot;
+                pt.alpha -= 0.003;
+
+                if (pt.alpha <= 0 || pt.y > height) {
+                    floatingPetals.splice(i, 1);
+                    continue;
+                }
+
+                ctx.save();
+                ctx.translate(pt.x, pt.y);
+                ctx.rotate(pt.rotation);
+                ctx.globalAlpha = pt.alpha;
+                ctx.fillStyle = pt.color;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, pt.size, pt.size * 0.5, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function createPlant(x, y) {
+            playChord();
+            const palette = colorPalettes[Math.floor(Math.random() * colorPalettes.length)];
+            const numBranches = 3 + Math.floor(Math.random() * 2);
+
+            for (let i = 0; i < numBranches; i++) {
+                const angle = (i * Math.PI * 2) / numBranches + (Math.random() - 0.5) * 0.6;
+                const length = 45 + Math.random() * 35;
+                branches.push(new Branch(x, y, angle, length, 3, palette));
+            }
+        }
+
+        window.addEventListener('click', (e) => {
+            if (!started || e.target.closest('.controls')) return;
+            createPlant(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('touchstart', (e) => {
+            if (!started || e.target.closest('.controls')) return;
+            const touch = e.touches[0];
+            createPlant(touch.clientX, touch.clientY);
+        }, { passive: true });
+
+        function animate() {
+            ctx.fillStyle = 'rgba(6, 4, 10, 0.22)';
+            ctx.fillRect(0, 0, width, height);
+
+            branches.forEach(b => {
+                b.update();
+                b.draw();
+            });
+
+            flowers.forEach(f => {
+                f.update();
+                f.draw();
+            });
+
+            updateParticles();
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
